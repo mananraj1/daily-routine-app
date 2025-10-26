@@ -3,6 +3,15 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:daily_flow/models/routine_item.dart';
 
+// Background callback must be a top-level or static function and annotated as an
+// entry-point so the native side can invoke it when app is in background.
+@pragma('vm:entry-point')
+void notificationTapBackground(NotificationResponse response) {
+  // You can perform lightweight background handling here. Keep it minimal.
+  // For now we just log or ignore — heavier work should be deferred to
+  // a background isolate or handled when the app is resumed.
+}
+
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
@@ -21,7 +30,7 @@ class NotificationService {
     await _notificationsPlugin.initialize(
       initSettings,
       onDidReceiveNotificationResponse: _onNotificationTapped,
-      onDidReceiveBackgroundNotificationResponse: _onNotificationTapped,
+      onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
     );
 
     // Request notification permissions

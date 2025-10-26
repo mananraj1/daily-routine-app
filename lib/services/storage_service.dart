@@ -2,18 +2,28 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:daily_flow/models/routine_item.dart';
 
 class StorageService {
+  // Make StorageService a singleton so the same instance (and box) is used
+  // across the app (prevents LateInitializationError when multiple
+  // instances are created).
+  static final StorageService _instance = StorageService._internal();
+  factory StorageService() => _instance;
+  StorageService._internal();
+
   static const String _boxName = 'routines';
   late Box<RoutineItem> _box;
+  bool _initialized = false;
 
   Future<void> init() async {
+    if (_initialized) return;
     await Hive.initFlutter();
-    
+
     // Register adapters
     Hive.registerAdapter(RoutineItemAdapter());
     Hive.registerAdapter(RecurrenceAdapter());
-    
+
     // Open the box
     _box = await Hive.openBox<RoutineItem>(_boxName);
+    _initialized = true;
   }
 
   Future<void> addRoutine(RoutineItem routine) async {
